@@ -3,20 +3,16 @@ from datetime import datetime, timedelta
 from alpaca_trade_api.rest import REST
 import pytz
 import time
-
-# Alpaca API credentials
-API_KEY = 'PKKBHUDCGX3EYBURG6B6'
-API_SECRET = 'bn81IJO3rKU4POymKaC3iCt2k8mCanUtkmyXg0Gj'
-ALPACA_ENDPOINT = 'https://paper-api.alpaca.markets'
+from secrets import API_KEY, API_SECRET, PAPER_URL
 
 # Initialize Alpaca API
-api = REST(API_KEY, API_SECRET, ALPACA_ENDPOINT)
+api = REST(API_KEY, API_SECRET, PAPER_URL)
 
 def fetch_historical_data():
     try:
-        # Set up time parameters - fetch from 2 years ago until yesterday
-        end_date = datetime.now(pytz.UTC) - timedelta(days=1)  # Yesterday
-        start_date = end_date - timedelta(days=730)  # 2 years before end date
+        # Set up time parameters
+        end_date = datetime.now(pytz.UTC)
+        start_date = end_date - timedelta(days=730)  # 2 years
         
         print(f"Fetching SPY minute data from {start_date} to {end_date}")
         
@@ -29,32 +25,22 @@ def fetch_historical_data():
             current_end = min(current_start + chunk_size, end_date)
             print(f"Fetching chunk: {current_start} to {current_end}")
             
-            try:
-                # Get bars for current chunk
-                bars = api.get_bars(
-                    symbol='SPY',
-                    timeframe='1Min',
-                    start=current_start.isoformat(),
-                    end=current_end.isoformat(),
-                    adjustment='raw'
-                )
-                
-                all_bars.extend(bars)
-                print(f"Retrieved {len(bars)} bars for current chunk")
-                
-                # Move to next chunk
-                current_start = current_end
-                time.sleep(2)  # Increased pause between chunks
-                
-            except Exception as chunk_error:
-                print(f"Error fetching chunk: {str(chunk_error)}")
-                time.sleep(5)  # Longer pause on error
-                continue
-        
-        if not all_bars:
-            print("No data was retrieved!")
-            return
+            # Get bars for current chunk
+            bars = api.get_bars(
+                symbol='SPY',
+                timeframe='1Min',
+                start=current_start.isoformat(),
+                end=current_end.isoformat(),
+                adjustment='raw'
+            )
             
+            all_bars.extend(bars)
+            print(f"Retrieved {len(bars)} bars for current chunk")
+            
+            # Move to next chunk
+            current_start = current_end
+            time.sleep(1)  # Rate limiting pause
+        
         # Convert all bars to DataFrame
         df = pd.DataFrame([
             {
@@ -70,7 +56,7 @@ def fetch_historical_data():
         ])
         
         # Save to CSV
-        filename = f'SPY_minute_data_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.csv'
+        filename = f'data/SPY_minute_data_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.csv'
         df.to_csv(filename, index=False)
         print(f"\nData successfully saved to {filename}")
         print(f"Total bars retrieved: {len(df)}")
