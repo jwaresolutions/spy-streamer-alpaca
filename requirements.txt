@@ -1,0 +1,6 @@
+alpaca-trade-api
+pandas
+pytz
+numpy
+websockets
+requests>
