@@ -1,5 +1,5 @@
-# Secrets
-secrets.py
+# config with api keys
+config.py
 
 # Python
 __pycache__/
