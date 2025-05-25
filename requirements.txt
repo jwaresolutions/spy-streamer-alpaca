@@ -3,4 +3,6 @@ pandas
 pytz
 numpy
 websockets
-requests>
+requests
+blackb
+mypy
