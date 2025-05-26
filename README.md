@@ -14,7 +14,7 @@ A Python service that streams real-time Bitcoin/USD market data using Polygon.io
 ## Prerequisites
 
 - Python 3.8 or higher
-- Polygon.io account (Starter tier or higher)
+- Polygon.io account (Currencies Starter tier or higher with Crypto data access)
 - Linux system with systemd (for service deployment)
 
 ## Installation
@@ -24,11 +24,13 @@ A Python service that streams real-time Bitcoin/USD market data using Polygon.io
 git clone [your-repo-url]
 cd [repo-directory]
 ```
+
 2. Create and activate virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate
 ```
+
 3. Install dependencies:
 ```bash
 pip install -r requirements.txt
@@ -41,11 +43,19 @@ vim config.py  # Replace 'your_polygon_api_key_here' with your actual API key
 ```
 
 ## Service Setup
-1. update 2 instances of `{location to source}` with the correct location to source i.e. `ExecStart=/home/user/project/venv/bin/python /home/user/project/src/crypto_stream_service.py`
-2. Copy updated service file to service directory:
+
+1. Edit crypto-stream.service:
+   - Replace both instances of `{location to source}` with your project path
+   - Example: `/home/user/crypto-stream` if your project is in that directory
+   - The paths should point to:
+     * The venv Python: `/home/user/crypto-stream/venv/bin/python`
+     * The service script: `/home/user/crypto-stream/src/crypto_stream_service.py`
+
+2. Copy service file to systemd:
 ```bash
 sudo cp crypto-stream.service /etc/systemd/system/crypto-stream.service
 ```
+
 3. Enable and start the service:
 ```bash
 sudo systemctl daemon-reload
@@ -53,23 +63,21 @@ sudo systemctl enable crypto-stream
 sudo systemctl start crypto-stream
 ```
 
-## other commands
-1. Check service status:
+## Common Commands
+
+1. View service status:
 ```bash
 sudo systemctl status crypto-stream
 ```
-
-2. View logs
+2. Watch live logs:
 ```bash
 journalctl -u crypto-stream -f
 ```
-
-3. Restart service
+3. Restart service:
 ```bash
 ./restart-crypto-service.sh
 ```
-
-4. Test Polygon connection
+4. Test connection:
 ```bash
 python test_polygon.py
 ```
